@@ -79,12 +79,56 @@ function viewAllRoles() {
     });
 }
 
+
 //------------------------View all departments ------------------------
 function viewAllDepartments() {
     departmentModel.getAll((err, results) => {
         if (err) throw err;
         console.table(results);  
         startPrompt();  
+    });
+}
+//------------------------ Add a role ------------------------
+function addRole() {
+    inquirer.prompt([
+        {
+            name: 'role_name',
+            type: 'input',
+            message: 'Name of the role:',
+        },
+        {
+            name: 'salary',
+            type: 'input',
+            message: 'Salary for the role:',
+        },
+        {
+            name: 'department',
+            type: 'list',   
+            message: 'Which department does this role belong to?',
+            choices: ['Department1', 'Department2'] 
+        }
+    ]).then(answers => {
+        roleModel.add(answers, (err, results) => {
+            if (err) throw err;
+            console.log('Role added!');
+            startPrompt();
+        });
+    });
+}
+//------------------------ Add a department ------------------------
+function addDepartment() {
+    inquirer.prompt([
+        {
+            name: 'department_name',
+            type: 'input',
+            message: 'Name of the department:',
+        }
+    ]).then(answers => {
+        departmentModel.add(answers, (err, results) => {
+            if (err) throw err;
+            console.log('Department added!');
+            startPrompt();
+        });
     });
 }
 
@@ -104,5 +148,30 @@ function addEmployee() {
         });
     });
 }
+
+//------------------------ Update employee ------------------------
+function updateEmployeeRole() {
+    inquirer.prompt([
+        {
+            name: 'employee_id',
+            type: 'list',
+            message: 'Which employee would you like to update?',
+            choices: [],  
+        },
+        {
+            name: 'role_id',
+            type: 'list',
+            message: 'What is the new role for this employee?',
+            choices: []  
+        }
+    ]).then(answers => {
+        employeeModel.updateRole(answers, (err, results) => {
+            if (err) throw err;
+            console.log('Employee role updated!');
+            startPrompt();
+        });
+    });
+}
+ 
 
 startPrompt(); 
