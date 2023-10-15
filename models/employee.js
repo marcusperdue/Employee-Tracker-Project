@@ -1,12 +1,17 @@
-const connection = require('../config/connection');
+const connection = require('../config/connection');  
+
+function getAll(callback) {
+  const sql = 'SELECT * FROM employee';
+
+  connection.query(sql, (err, results) => {
+    if (err) {
+      callback(err, null);
+      return;
+    }
+    callback(null, results);
+  });
+}
 
 module.exports = {
-    getAllEmployees: function(callback) {
-        connection.query('SELECT * FROM employee', callback);
-    },
-     
-};
-
-exports.add = function(employeeDetails, callback) {
-    connection.query('INSERT INTO employee SET ?', employeeDetails, callback);
+  getAll,
 };
