@@ -1,15 +1,26 @@
 const mysql = require('mysql2');
 const inquirer = require('inquirer');
 const connection = require('./config/connection');
-
+const departmentModel = require('./models/department');
 
 const employeeModel = require('./models/employee');
 const roleModel = require('./models/role');
-const departmentModel = require('./models/department');
 
 
+const cfonts = require('cfonts');
+const Table = require('cli-table3');
 
-
+//------------------------ Starting prompts ------------------------
+function displayCustomTitle() {
+    const text = 'Employee Manager';
+    const fontOptions = { font: 'block', align: 'center', 
+    colors: ['cyan'], background: 'transparent', letterSpacing: 1, 
+    lineHeight: 1, space: true };
+    console.log(cfonts.render(text, fontOptions).string);
+  }
+  
+  module.exports = displayCustomTitle;
+  displayCustomTitle();
 //------------------------ Starting prompts ------------------------
 function startPrompt() {
     inquirer
@@ -65,29 +76,89 @@ function startPrompt() {
 function viewAllEmployees() {
     employeeModel.getAll((err, results) => {
         if (err) throw err;
-        console.table(results);  
-        startPrompt();  
+
+        const table = new Table({
+            head: ['Employee ID', 'First Name', 'Last Name', 'Title', 'Department', 'Salary', 'Manager Name'],
+            colWidths: [15, 15, 15, 15, 15, 15, 18],
+            style: { compact: true }
+        });
+
+        results.forEach((employee) => {
+            table.push([
+                employee.employee_id,
+                employee.first_name,
+                employee.last_name,
+                employee.title,
+                employee.department,
+                employee.salary,
+                employee.manager_name
+            ]);
+        });
+
+        console.log(table.toString());
+
+        startPrompt();
     });
 }
+
 
 //------------------------ View all roles ------------------------
 function viewAllRoles() {
     roleModel.getAll((err, results) => {
         if (err) throw err;
-        console.table(results);  
-        startPrompt();  
+
+        const table = new Table({
+            head: ['Role ID', 'Title', 'Salary', 'Department ID', 'Department Name'],
+            colWidths: [15, 30, 15, 15, 30],
+            style: { compact: true }
+        });
+
+        results.forEach((role) => {
+            table.push([
+                role.roleId,
+                role.title,
+                role.salary,
+                role.departmentId,
+                role.departmentName
+            ]);
+        });
+
+        console.log(table.toString());
+
+        startPrompt();
     });
 }
 
 
 //------------------------View all departments ------------------------
+
 function viewAllDepartments() {
     departmentModel.getAll((err, results) => {
         if (err) throw err;
-        console.table(results);  
-        startPrompt();  
+
+        // Create a table
+        const table = new Table({
+            head: ['Department ID', 'Name'],
+            colWidths: [15, 30],
+            style: { compact: true }
+        });
+
+        // Populate the table with data
+        results.forEach((department) => {
+            table.push([
+                department.id,
+                department.name
+            ]);
+        });
+
+        // Display the table
+        console.log(table.toString());
+
+        // After displaying the data, go back to the main prompt
+        startPrompt();
     });
 }
+
 //------------------------ Add a role ------------------------
 function addRole() {
     inquirer.prompt([
@@ -105,7 +176,7 @@ function addRole() {
             name: 'department',
             type: 'list',   
             message: 'Which department does this role belong to?',
-            choices: ['Department1', 'Department2'] 
+            choices: departments.map(department => department.name),
         }
     ]).then(answers => {
         roleModel.add(answers, (err, results) => {
@@ -117,20 +188,23 @@ function addRole() {
 }
 //------------------------ Add a department ------------------------
 function addDepartment() {
-    inquirer.prompt([
+    inquirer
+      .prompt([
         {
-            name: 'department_name',
-            type: 'input',
-            message: 'Name of the department:',
-        }
-    ]).then(answers => {
+          name: 'name',
+          type: 'input',
+          message: 'Name of the department:',
+        },
+      ])
+      .then((answers) => {
+        
         departmentModel.add(answers, (err, results) => {
-            if (err) throw err;
-            console.log('Department added!');
-            startPrompt();
+          if (err) throw err;
+          console.log('Department added!');
+          startPrompt();  
         });
-    });
-}
+      });
+  }
 
 //------------------------ Add employee ------------------------
 function addEmployee() {
@@ -179,6 +253,7 @@ function addEmployee() {
         });
     });
 }
+
 
 
 //------------------------ Update employee ------------------------

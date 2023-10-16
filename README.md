@@ -29,8 +29,9 @@ To install this project, follow these steps:
 2. In order to install ```inquirer``` please use ```npm i inquirer@8.2.4```
 
 3. mysql -u username -p SOURCE db/schema.sql S
-
-4. 
+ 
+4. npm install cfonts (optional)
+npm install cli-table3
 
 ## Usage
  
