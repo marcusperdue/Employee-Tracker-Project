@@ -15,7 +15,7 @@ function getAll(callback) {
 }
 function add(roleData, callback) {
   const sql = 'INSERT INTO role (title, salary, department_id) VALUES (?, ?, ?)';
-  const values = [roleData.role_name, roleData.salary, roleData.department];
+  const values = [roleData.title, roleData.salary, roleData.department_id]; // Use the correct keys
 
   connection.query(sql, values, (err, results) => {
     if (err) {
@@ -25,6 +25,7 @@ function add(roleData, callback) {
     callback(null, results);
   });
 }
+
 
 module.exports = {
     getAll,

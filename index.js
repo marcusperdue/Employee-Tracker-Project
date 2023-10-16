@@ -79,9 +79,10 @@ function viewAllEmployees() {
 
         const table = new Table({
             head: ['Employee ID', 'First Name', 'Last Name', 'Title', 'Department', 'Salary', 'Manager Name'],
-            colWidths: [15, 15, 15, 15, 15, 15, 18],
+            colWidths: [15, 15, 15, 19, 15, 15, 18],
             style: { compact: true }
         });
+
 
         results.forEach((employee) => {
             table.push([
@@ -136,14 +137,12 @@ function viewAllDepartments() {
     departmentModel.getAll((err, results) => {
         if (err) throw err;
 
-        // Create a table
         const table = new Table({
             head: ['Department ID', 'Name'],
             colWidths: [15, 30],
             style: { compact: true }
         });
 
-        // Populate the table with data
         results.forEach((department) => {
             table.push([
                 department.id,
@@ -151,41 +150,51 @@ function viewAllDepartments() {
             ]);
         });
 
-        // Display the table
         console.log(table.toString());
 
-        // After displaying the data, go back to the main prompt
+
         startPrompt();
     });
 }
 
 //------------------------ Add a role ------------------------
+ 
 function addRole() {
-    inquirer.prompt([
-        {
-            name: 'role_name',
-            type: 'input',
-            message: 'Name of the role:',
-        },
-        {
-            name: 'salary',
-            type: 'input',
-            message: 'Salary for the role:',
-        },
-        {
-            name: 'department',
-            type: 'list',   
-            message: 'Which department does this role belong to?',
-            choices: departments.map(department => department.name),
-        }
-    ]).then(answers => {
-        roleModel.add(answers, (err, results) => {
-            if (err) throw err;
-            console.log('Role added!');
-            startPrompt();
+    departmentModel.getAll((err, departments) => {
+        if (err) throw err;
+
+        inquirer.prompt([
+            {
+                name: 'title',
+                type: 'input',
+                message: 'Title of the role:',
+            },
+            {
+                name: 'salary',
+                type: 'input',
+                message: 'Salary for the role:',
+            },
+            {
+                name: 'department_id',
+                type: 'list',
+                message: 'Select the department for this role:',
+                choices: departments.map(department => ({
+                    name: department.name,
+                    value: department.id
+                })),
+            },
+        ]).then(answers => {
+            roleModel.add(answers, (err, results) => {
+                if (err) throw err;
+                console.log('Role added!');
+                startPrompt();
+            });
         });
     });
 }
+
+ 
+
 //------------------------ Add a department ------------------------
 function addDepartment() {
     inquirer
@@ -207,52 +216,95 @@ function addDepartment() {
   }
 
 //------------------------ Add employee ------------------------
+ 
 function addEmployee() {
-    employeeModel.getAll((err, employees) => {
-        if (err) throw err;
+    inquirer.prompt([
+        {
+            type: 'input',
+            name: 'first_name',
+            message: "What is the employee's first name?",
+            validate: addFirst => {
+                if (addFirst) {
+                    return true;
+                } else {
+                    console.log('Please enter a first name');
+                    return false;
+                }
+            }
+        },
+        {
+            type: 'input',
+            name: 'last_name',
+            message: "What is the employee's last name?",
+            validate: addLast => {
+                if (addLast) {
+                    return true;
+                } else {
+                    console.log('Please enter a last name');
+                    return false;
+                }
+            }
+        }
+    ])
+    .then(answer => {
+        const params = [answer.first_name, answer.last_name];
 
-        roleModel.getAll((err, roles) => {
-            if (err) throw err;
+      
+        const roleSql = `SELECT role.id, role.title FROM role`;
 
-            inquirer.prompt([
+        connection.promise().query(roleSql)
+        .then(([rows, fields]) => {
+            const roles = rows.map(({ id, title }) => ({ name: title, value: id }));
+
+            return inquirer.prompt([
                 {
-                    name: 'first_name',
-                    type: 'input',
-                    message: 'First name of the employee:',
-                },
-                {
-                    name: 'last_name',
-                    type: 'input',
-                    message: 'Last name of the employee:',
-                },
-                {
+                    type: 'list',
                     name: 'role_id',
-                    type: 'list',
-                    message: 'Select the role for this employee:',
-                    choices: roles.map(role => ({
-                        name: role.title,
-                        value: role.id
-                    })),
-                },
+                    message: "What is the employee's role?",
+                    choices: roles
+                }
+            ]);
+        })
+        .then(roleChoice => {
+            const role_id = roleChoice.role_id;
+            params.push(role_id);
+
+             
+            const managerSql = `SELECT id, first_name, last_name FROM employee`;
+
+            return connection.promise().query(managerSql);
+        })
+        .then(([rows, fields]) => {
+            const managers = rows.map(({ id, first_name, last_name }) => ({ name: `${first_name} ${last_name}`, value: id }));
+
+            return inquirer.prompt([
                 {
-                    name: 'manager_id',
                     type: 'list',
-                    message: 'Select the manager for this employee (if applicable):',
-                    choices: employees.map(employee => ({
-                        name: `${employee.first_name} ${employee.last_name}`,
-                        value: employee.id
-                    })),
-                },
-            ]).then(answers => {
-                employeeModel.add(answers, (err, results) => {
-                    if (err) throw err;
-                    console.log('Employee added!');
-                    startPrompt();
-                });
-            });
+                    name: 'manager_id',
+                    message: "Who is the employee's manager?",
+                    choices: managers
+                }
+            ]);
+        })
+        .then(managerChoice => {
+            const manager_id = managerChoice.manager_id;
+            params.push(manager_id);
+
+            const sql = `INSERT INTO employee (first_name, last_name, role_id, manager_id)
+                VALUES (?, ?, ?, ?)`;
+
+            return connection.promise().query(sql, params);
+        })
+        .then(() => {
+            console.log("Employee has been added!");
+            viewAllEmployees();  
+        })
+        .catch(err => {
+            console.error(err);
         });
     });
 }
+
 
 
 

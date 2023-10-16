@@ -28,22 +28,11 @@ function getAll(callback) {
     callback(null, results);
   });
 }
-function add(employeeData, callback) {
-  const sql = 'INSERT INTO employee (first_name, last_name, role_id, manager_id) VALUES (?, ?, ?, ?)';
-  const values = [employeeData.first_name, employeeData.last_name, employeeData.role_id, employeeData.manager_id];
 
-  connection.query(sql, values, (err, results) => {
-    if (err) {
-      callback(err, null);
-      return;
-    }
-    callback(null, results);
-  });
-}
+ 
 
 module.exports = {
   getAll,  
-  add,
 };
  
 
