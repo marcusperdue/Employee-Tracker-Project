@@ -36,6 +36,8 @@ function startPrompt() {
           'Add a role',
           'Add a department',
           'Update employee role',
+          'Update employee manager',
+          'Delete an employee',
           'Exit'
         ]
       })
@@ -62,12 +64,28 @@ function startPrompt() {
           case 'Update employee role':
             updateEmployeeRole();
             break;
+        case 'Update employee manager': // New case for updating manager
+            updateEmployeeManagerPrompt();
+            break;
           case 'Exit':
             connection.end();
             break;
           default:
             console.log(`Invalid action: ${answer.action}`);
             break;
+            case 'Delete a department': // New case for deleting department
+            deleteDepartmentPrompt();
+            break;
+        case 'Delete a role':       // New case for deleting role
+            deleteRolePrompt();
+            break;
+        case 'Delete an employee':  // New case for deleting employee
+            deleteEmployeePrompt();
+            break;
+        case 'Exit':
+            connection.end();
+            break;
+          
         }
       });
 }
@@ -310,11 +328,49 @@ function addEmployee() {
 
 //------------------------ Update employee ------------------------
 
+function getEmployees(callback) {
+    const sql = 'SELECT id, first_name, last_name FROM employee';
+    connection.query(sql, (err, results) => {
+        if (err) {
+            callback(err, null);
+            return;
+        }
+        callback(null, results);
+    });
+}
+
+// Function to fetch roles
+function getRoles(callback) {
+    const sql = 'SELECT id, title FROM role';
+    connection.query(sql, (err, results) => {
+        if (err) {
+            callback(err, null);
+            return;
+        }
+        callback(null, results);
+    });
+}
+
+//------------------------ Update employee ------------------------
+function updateEmployee(data, callback) {
+    const sql = 'UPDATE employee SET role_id = ? WHERE id = ?';
+    const values = [data.role_id, data.employee_id];
+
+    connection.query(sql, values, (err, results) => {
+        if (err) {
+            callback(err, null);
+            return;
+        }
+        callback(null, results);
+    });
+}
 function updateEmployeeRole() {
-    employeeModel.getAll((err, employees) => {
+   
+    getEmployees((err, employees) => {
         if (err) throw err;
 
-        roleModel.getAll((err, roles) => {
+       
+        getRoles((err, roles) => {
             if (err) throw err;
 
             inquirer.prompt([
@@ -327,8 +383,8 @@ function updateEmployeeRole() {
                         value: employee.id
                     })), 'Exit'],
                 },
-            ]).then(answers => {
-                if (answers.employee_id === 'Exit') {
+            ]).then(employeeAnswer => {
+                if (employeeAnswer.employee_id === 'Exit') {
                     startPrompt();
                 } else {
                     inquirer.prompt([
@@ -343,10 +399,12 @@ function updateEmployeeRole() {
                         }
                     ]).then(roleAnswer => {
                         const updateData = {
-                            employee_id: answers.employee_id,
+                            employee_id: employeeAnswer.employee_id,
                             role_id: roleAnswer.role_id
                         };
-                        employeeModel.updateRole(updateData, (err, results) => {
+
+                       
+                        updateEmployee(updateData, (err, results) => {
                             if (err) throw err;
                             console.log('Employee role updated!');
                             startPrompt();
@@ -358,6 +416,175 @@ function updateEmployeeRole() {
     });
 }
 
- 
+//------------------------ Update employee ------------------------
+function updateEmployeeManager(data, callback) {
+    const sql = 'UPDATE employee SET manager_id = ? WHERE id = ?';
+    const values = [data.manager_id, data.employee_id];
+
+    connection.query(sql, values, (err, results) => {
+        if (err) {
+            callback(err, null);
+            return;
+        }
+        callback(null, results);
+    });
+}
+
+function updateEmployeeManagerPrompt() {
+    // Fetch the list of employees
+    getEmployees((err, employees) => {
+        if (err) throw err;
+
+        inquirer.prompt([
+            {
+                name: 'employee_id',
+                type: 'list',
+                message: 'Which employee would you like to update their manager? (or select "Exit" to return to the main menu)',
+                choices: [...employees.map(employee => ({
+                    name: `${employee.first_name} ${employee.last_name}`,
+                    value: employee.id
+                })), 'Exit'],
+            },
+        ]).then(employeeAnswer => {
+            if (employeeAnswer.employee_id === 'Exit') {
+                startPrompt();
+            } else {
+                inquirer.prompt([
+                    {
+                        name: 'manager_id',
+                        type: 'list',
+                        message: 'Select the new manager for this employee:',
+                        choices: employees.map(employee => ({
+                            name: `${employee.first_name} ${employee.last_name}`,
+                            value: employee.id
+                        })),
+                    }
+                ]).then(managerAnswer => {
+                    const updateData = {
+                        employee_id: employeeAnswer.employee_id,
+                        manager_id: managerAnswer.manager_id
+                    };
+
+                    // Use the updateEmployeeManager function to update the manager
+                    updateEmployeeManager(updateData, (err, results) => {
+                        if (err) throw err;
+                        console.log('Employee manager updated!');
+                        startPrompt();
+                    });
+                });
+            }
+        });
+    });
+}
+
+// Function to delete a department
+function deleteDepartment(id, callback) {
+    const sql = 'DELETE FROM department WHERE id = ?';
+    connection.query(sql, [id], (err, results) => {
+        if (err) {
+            callback(err, null);
+            return;
+        }
+        callback(null, results);
+    });
+}
+
+// Function to delete a role
+function deleteRole(id, callback) {
+    const sql = 'DELETE FROM role WHERE id = ?';
+    connection.query(sql, [id], (err, results) => {
+        if (err) {
+            callback(err, null);
+            return;
+        }
+        callback(null, results);
+    });
+}
+
+// Function to delete an employee
+function deleteEmployee(id, callback) {
+    const sql = 'DELETE FROM employee WHERE id = ?';
+    connection.query(sql, [id], (err, results) => {
+        if (err) {
+            callback(err, null);
+            return;
+        }
+        callback(null, results);
+    });
+}
+// Function to handle the delete department prompt
+function deleteDepartmentPrompt() {
+    departmentModel.getAll((err, departments) => {
+        if (err) throw err;
+
+        inquirer.prompt([
+            {
+                name: 'department_id',
+                type: 'list',
+                message: 'Select the department to delete:',
+                choices: departments.map(department => ({
+                    name: department.name,
+                    value: department.id
+                })),
+            },
+        ]).then(answer => {
+            deleteDepartment(answer.department_id, (err, results) => {
+                if (err) throw err;
+                console.log('Department deleted!');
+                startPrompt();
+            });
+        });
+    });
+}
+
+// Function to handle the delete role prompt
+function deleteRolePrompt() {
+    roleModel.getAll((err, roles) => {
+        if (err) throw err;
+
+        inquirer.prompt([
+            {
+                name: 'role_id',
+                type: 'list',
+                message: 'Select the role to delete:',
+                choices: roles.map(role => ({
+                    name: role.title,
+                    value: role.id
+                })),
+            },
+        ]).then(answer => {
+            deleteRole(answer.role_id, (err, results) => {
+                if (err) throw err;
+                console.log('Role deleted!');
+                startPrompt();
+            });
+        });
+    });
+}
+
+// Function to handle the delete employee prompt
+function deleteEmployeePrompt() {
+    getEmployees((err, employees) => {
+        if (err) throw err;
+
+        inquirer.prompt([
+            {
+                name: 'employee_id',
+                type: 'list',
+                message: 'Select the employee to delete:',
+                choices: employees.map(employee => ({
+                    name: `${employee.first_name} ${employee.last_name}`,
+                    value: employee.id
+                })),
+            },
+        ]).then(answer => {
+            deleteEmployee(answer.employee_id, (err, results) => {
+                if (err) throw err;
+                console.log('Employee deleted!');
+                startPrompt();
+            });
+        });
+    });
+}
 
 startPrompt(); 
