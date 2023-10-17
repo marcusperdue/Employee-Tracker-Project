@@ -338,8 +338,6 @@ function getEmployees(callback) {
         callback(null, results);
     });
 }
-
-// Function to fetch roles
 function getRoles(callback) {
     const sql = 'SELECT id, title FROM role';
     connection.query(sql, (err, results) => {
@@ -351,7 +349,7 @@ function getRoles(callback) {
     });
 }
 
-//------------------------ Update employee ------------------------
+//------------------------ Update employee role ------------------------
 function updateEmployee(data, callback) {
     const sql = 'UPDATE employee SET role_id = ? WHERE id = ?';
     const values = [data.role_id, data.employee_id];
@@ -416,7 +414,7 @@ function updateEmployeeRole() {
     });
 }
 
-//------------------------ Update employee ------------------------
+//------------------------ Update employee manager------------------------
 function updateEmployeeManager(data, callback) {
     const sql = 'UPDATE employee SET manager_id = ? WHERE id = ?';
     const values = [data.manager_id, data.employee_id];
@@ -431,7 +429,6 @@ function updateEmployeeManager(data, callback) {
 }
 
 function updateEmployeeManagerPrompt() {
-    // Fetch the list of employees
     getEmployees((err, employees) => {
         if (err) throw err;
 
@@ -465,7 +462,6 @@ function updateEmployeeManagerPrompt() {
                         manager_id: managerAnswer.manager_id
                     };
 
-                    // Use the updateEmployeeManager function to update the manager
                     updateEmployeeManager(updateData, (err, results) => {
                         if (err) throw err;
                         console.log('Employee manager updated!');
@@ -477,7 +473,6 @@ function updateEmployeeManagerPrompt() {
     });
 }
 
-// Function to delete a department
 function deleteDepartment(id, callback) {
     const sql = 'DELETE FROM department WHERE id = ?';
     connection.query(sql, [id], (err, results) => {
@@ -489,7 +484,6 @@ function deleteDepartment(id, callback) {
     });
 }
 
-// Function to delete a role
 function deleteRole(id, callback) {
     const sql = 'DELETE FROM role WHERE id = ?';
     connection.query(sql, [id], (err, results) => {
@@ -501,7 +495,6 @@ function deleteRole(id, callback) {
     });
 }
 
-// Function to delete an employee
 function deleteEmployee(id, callback) {
     const sql = 'DELETE FROM employee WHERE id = ?';
     connection.query(sql, [id], (err, results) => {
@@ -512,7 +505,6 @@ function deleteEmployee(id, callback) {
         callback(null, results);
     });
 }
-// Function to handle the delete department prompt
 function deleteDepartmentPrompt() {
     departmentModel.getAll((err, departments) => {
         if (err) throw err;
@@ -536,8 +528,6 @@ function deleteDepartmentPrompt() {
         });
     });
 }
-
-// Function to handle the delete role prompt
 function deleteRolePrompt() {
     roleModel.getAll((err, roles) => {
         if (err) throw err;
@@ -562,7 +552,6 @@ function deleteRolePrompt() {
     });
 }
 
-// Function to handle the delete employee prompt
 function deleteEmployeePrompt() {
     getEmployees((err, employees) => {
         if (err) throw err;
