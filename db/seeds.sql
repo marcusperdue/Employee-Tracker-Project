@@ -1,3 +1,4 @@
+--dynamic inputs for tables
 INSERT INTO department (name) VALUES 
 ('Sales'), 
 ('Engineering'), 

@@ -1,10 +1,11 @@
 const mysql = require('mysql2');
 const inquirer = require('inquirer');
 const connection = require('./config/connection');
+//models import to neaten code
 const departmentModel = require('./models/department');
-
 const employeeModel = require('./models/employee');
 const roleModel = require('./models/role');
+
 // Importing the cfonts module for creating stylish text in the console
 const cfonts = require('cfonts');
 // Importing the cli-table3 module for generating tables in the console.
@@ -452,7 +453,7 @@ function updateEmployeeManagerPrompt() {
         });
     });
 }
-
+//------------------------ Delete employee department ------------------------
 function deleteDepartment(id, callback) {
     const sql = 'DELETE FROM department WHERE id = ?';
     connection.query(sql, [id], (err, results) => {
@@ -463,7 +464,7 @@ function deleteDepartment(id, callback) {
         callback(null, results);
     });
 }
-
+//------------------------ Delete employee role ------------------------
 function deleteRole(id, callback) {
     const sql = 'DELETE FROM role WHERE id = ?';
     connection.query(sql, [id], (err, results) => {
@@ -474,7 +475,7 @@ function deleteRole(id, callback) {
         callback(null, results);
     });
 }
-
+//------------------------ Delete employee ------------------------
 function deleteEmployee(id, callback) {
     const sql = 'DELETE FROM employee WHERE id = ?';
     connection.query(sql, [id], (err, results) => {
