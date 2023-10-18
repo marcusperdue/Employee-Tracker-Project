@@ -5,9 +5,9 @@ const departmentModel = require('./models/department');
 
 const employeeModel = require('./models/employee');
 const roleModel = require('./models/role');
-
-
+// Importing the cfonts module for creating stylish text in the console
 const cfonts = require('cfonts');
+// Importing the cli-table3 module for generating tables in the console.
 const Table = require('cli-table3');
 
 //------------------------ Starting prompts ------------------------
@@ -38,6 +38,8 @@ function startPrompt() {
           'Update employee role',
           'Update employee manager',
           'Delete an employee',
+          //'Delete a department', (Didnt have time to implement)
+          //'Delete a role', 
           'Exit'
         ]
       })
@@ -64,7 +66,7 @@ function startPrompt() {
           case 'Update employee role':
             updateEmployeeRole();
             break;
-        case 'Update employee manager': // New case for updating manager
+        case 'Update employee manager':  
             updateEmployeeManagerPrompt();
             break;
           case 'Exit':
@@ -73,13 +75,13 @@ function startPrompt() {
           default:
             console.log(`Invalid action: ${answer.action}`);
             break;
-            case 'Delete a department': // New case for deleting department
+            case 'Delete a department':  
             deleteDepartmentPrompt();
             break;
-        case 'Delete a role':       // New case for deleting role
+        case 'Delete a role':        
             deleteRolePrompt();
             break;
-        case 'Delete an employee':  // New case for deleting employee
+        case 'Delete an employee':   
             deleteEmployeePrompt();
             break;
         case 'Exit':
@@ -101,7 +103,6 @@ function viewAllEmployees() {
             style: { compact: true }
         });
 
-
         results.forEach((employee) => {
             table.push([
                 employee.employee_id,
@@ -113,14 +114,10 @@ function viewAllEmployees() {
                 employee.manager_name
             ]);
         });
-
         console.log(table.toString());
-
         startPrompt();
     });
 }
-
-
 //------------------------ View all roles ------------------------
 function viewAllRoles() {
     roleModel.getAll((err, results) => {
@@ -147,8 +144,6 @@ function viewAllRoles() {
         startPrompt();
     });
 }
-
-
 //------------------------View all departments ------------------------
 
 function viewAllDepartments() {
@@ -170,11 +165,9 @@ function viewAllDepartments() {
 
         console.log(table.toString());
 
-
         startPrompt();
     });
 }
-
 //------------------------ Add a role ------------------------
  
 function addRole() {
@@ -210,9 +203,6 @@ function addRole() {
         });
     });
 }
-
- 
-
 //------------------------ Add a department ------------------------
 function addDepartment() {
     inquirer
@@ -232,9 +222,7 @@ function addDepartment() {
         });
       });
   }
-
 //------------------------ Add employee ------------------------
- 
 function addEmployee() {
     inquirer.prompt([
         {
@@ -267,7 +255,6 @@ function addEmployee() {
     .then(answer => {
         const params = [answer.first_name, answer.last_name];
 
-      
         const roleSql = `SELECT role.id, role.title FROM role`;
 
         connection.promise().query(roleSql)
@@ -308,8 +295,7 @@ function addEmployee() {
             const manager_id = managerChoice.manager_id;
             params.push(manager_id);
 
-            const sql = `INSERT INTO employee (first_name, last_name, role_id, manager_id)
-                VALUES (?, ?, ?, ?)`;
+            const sql = `INSERT INTO employee (first_name, last_name, role_id, manager_id) VALUES (?, ?, ?, ?)`;
 
             return connection.promise().query(sql, params);
         })
@@ -322,12 +308,7 @@ function addEmployee() {
         });
     });
 }
-
-
-
-
 //------------------------ Update employee ------------------------
-
 function getEmployees(callback) {
     const sql = 'SELECT id, first_name, last_name FROM employee';
     connection.query(sql, (err, results) => {
@@ -427,7 +408,6 @@ function updateEmployeeManager(data, callback) {
         callback(null, results);
     });
 }
-
 function updateEmployeeManagerPrompt() {
     getEmployees((err, employees) => {
         if (err) throw err;

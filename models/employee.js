@@ -1,5 +1,4 @@
 const connection = require('../config/connection');
-
 function getAll(callback) {
   const sql = `
     SELECT
@@ -19,7 +18,6 @@ function getAll(callback) {
     LEFT JOIN
       employee m ON e.manager_id = m.id;
   `;
-
   connection.query(sql, (err, results) => {
     if (err) {
       callback(err, null);
@@ -28,9 +26,6 @@ function getAll(callback) {
     callback(null, results);
   });
 }
-
-
- 
 
 module.exports = {
   getAll,  

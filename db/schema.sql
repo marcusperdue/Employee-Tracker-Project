@@ -1,5 +1,5 @@
+-- MY DATABASE
 CREATE DATABASE db_project;
-
 USE db_project;
 
 CREATE TABLE department (

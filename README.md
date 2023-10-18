@@ -36,6 +36,7 @@ Use ```node index.js``` to run application
  [Video Demo](https://drive.google.com/file/d/1aIoREWLbvna1Ca2zHT-beNO3Y_irTwNY/view)
 
 [![Demo](/readme.png)](https://drive.google.com/file/d/1aIoREWLbvna1Ca2zHT-beNO3Y_irTwNY/view)
+[![Demo](/readme-table.png)](https://drive.google.com/file/d/1aIoREWLbvna1Ca2zHT-beNO3Y_irTwNY/view)
 
 ## License
 
