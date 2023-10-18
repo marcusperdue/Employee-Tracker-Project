@@ -454,6 +454,7 @@ function updateEmployeeManagerPrompt() {
     });
 }
 //------------------------ Delete employee department ------------------------
+//doesnt work yet
 function deleteDepartment(id, callback) {
     const sql = 'DELETE FROM department WHERE id = ?';
     connection.query(sql, [id], (err, results) => {
@@ -465,6 +466,7 @@ function deleteDepartment(id, callback) {
     });
 }
 //------------------------ Delete employee role ------------------------
+//doesnt work yet
 function deleteRole(id, callback) {
     const sql = 'DELETE FROM role WHERE id = ?';
     connection.query(sql, [id], (err, results) => {

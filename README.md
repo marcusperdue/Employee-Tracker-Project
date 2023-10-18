@@ -43,6 +43,6 @@ Use ```node index.js``` to run application
 [MIT License](https://opensource.org/licenses/MIT)
 
 ## Contact
-* Email marcusperduee@gmail.com
-* Github [Marcus Perdue](https://github.com/marcusperdue)
-* Portfolio [https://www.marcusperdue.com/](https://www.marcusperdue.com/)
+* Email: marcusperduee@gmail.com
+* Github: [Marcus Perdue](https://github.com/marcusperdue)
+* Portfolio: [https://www.marcusperdue.com/](https://www.marcusperdue.com/)
